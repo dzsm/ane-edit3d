@@ -1,0 +1,593 @@
+#include "control.h"
+
+Control::Control(QObject *parent) : QObject(parent)
+{
+
+}
+
+void Control::broadcastChange() {
+    emit changed();
+}
+
+void Control::wait() {
+    // if (!((++loadcount)%10)) { emit changed(); { QTime dieTime = QTime::currentTime().addMSecs( 1 ); while( QTime::currentTime() < dieTime ) { QCoreApplication::processEvents( QEventLoop::AllEvents, 100 ); } } }
+    // QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+}
+
+void Control::errorMsg(std::string) {
+
+}
+
+//bool Control::group(MoleculeData::Mask maskWrite, std::string smart) {};
+bool Control::group(unsigned char maskWrite, unsigned char flip, const std::vector<int> & atomIds){
+    std::lock_guard<std::mutex> lock(mutex);
+
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    auto & group = mol.group();
+    for(int i = 0; i < static_cast<unsigned char>(atomIds.size()); i++)
+        if(atomIds[i]<mol.size()&&0<=atomIds[i]) mol.setGroup(atomIds[i],maskWrite,flip); else return false;
+
+    broadcastChange();
+    return true;
+
+}
+bool Control::group(unsigned char maskWrite, unsigned char flip, unsigned char maskRead) {
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    auto & group = mol.group();
+    for(int i = 0; i < static_cast<unsigned char>(group.size()); i++)
+       if(mol.isGroup(i,maskRead)) mol.setGroup(i,maskWrite,flip);
+
+    broadcastChange();
+    return true;
+}
+
+bool Control::pick(int atomId){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    mol.togglePicks(atomId);
+
+    broadcastChange();
+    return true;
+}
+//bool Control::pick(std::string smart){};
+bool Control::pick(){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    mol.clearPicks();
+
+    broadcastChange();
+    return true;
+}
+
+bool Control::distance(int atomId1,int atomId2){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    mol.toggleDistance(atomId1,atomId2);
+
+    broadcastChange();
+    return true;
+}
+bool Control::distance(){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    mol.clearDistances();
+
+    broadcastChange();
+    return true;
+}
+
+
+bool Control::translate(unsigned char mask,double x,double y,double z){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    mol.translate(mask,Eigen::Vector3d(x,y,z));
+
+    broadcastChange();
+    return true;
+}
+bool Control::rotate(unsigned char mask,double ax,double ay,double az,double angleRad, double ox,double oy,double oz){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    mol.rotateAround(mask,Eigen::Vector3d(ax,ay,az),angleRad,Eigen::Vector3d(ox,oy,oz));
+
+    broadcastChange();
+    return true;
+}
+bool Control::autoalign(unsigned char mask, std::string xyz){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    if(xyz.size()!=3) return false;
+
+    char c[3] = {xyz[0],xyz[1],xyz[2]};
+    mol.autoAlign(mask,c);
+
+    broadcastChange();
+    return true;
+}
+
+bool Control::erase(unsigned char mask){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    mol.removeAtoms(mask);
+
+    broadcastChange();
+    return true;
+}
+bool Control::copy(unsigned char maskRead, unsigned char maskWrite, unsigned char flip){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    Molecule::Molecule submol;
+    mol.extract(maskRead,submol);
+    mol.append(submol,maskWrite, flip);
+
+    broadcastChange();
+    return true;
+}
+bool Control::repeatcell(int n1,int n2, int n3){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    mol.repeatCell(n1,n2,n3);
+
+    broadcastChange();
+    return true;
+}
+
+bool Control::sort(unsigned char mask,double x,double y,double z){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    mol.sort(mask,Eigen::Vector3d(x,y,z));
+
+    broadcastChange();
+    return true;
+}
+bool Control::gather(unsigned char mask){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    mol.gather(mask);
+
+    broadcastChange();
+    return true;
+}
+
+bool Control::cell(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    mol.setCell(Eigen::Vector3d(x1,y1,z1),Eigen::Vector3d(x2,y2,z2),Eigen::Vector3d(x3,y3,z3));
+
+    broadcastChange();
+    return true;
+}
+//bool cell(int cellId,char cellComp,double value){}
+bool Control::cell() {
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    mol.removeCell();
+
+    broadcastChange();
+    return true;
+}
+
+//bool autolink(MoleculeData::Mask mask,double factor,double maxd,double mind){};
+bool Control::create(){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty())
+        sequence.createRowWithColumn();
+    else
+        sequence.createRow();
+
+    broadcastChange();
+    return true;
+}
+bool Control::duplicate(){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+    MoleculeData & mol = sequence.currentFrame();
+    sequence.createRow() = mol;
+
+    broadcastChange();
+    return true;
+}
+bool Control::remove(){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+    if (sequence.currentColumn().numRows() > 1 ) sequence.removeCurrentRow(); else return false;
+    broadcastChange();
+    return true;
+}
+//bool Control::move(){};
+bool Control::next(){
+    std::lock_guard<std::mutex> lock(mutex);
+    sequence.moveForward();
+    broadcastChange();
+    return true;
+}
+bool Control::previous(){
+    std::lock_guard<std::mutex> lock(mutex);
+    sequence.moveBackward();
+    broadcastChange();
+    return true;
+}
+//bool first(){};
+//bool last(){};
+
+std::string Control::extension(std::string filePath) {
+    std::string ext;
+    size_t i = filePath.rfind('.', filePath.length());
+    if (i != std::string::npos)  ext = filePath.substr(i+1, filePath.length() - i);
+    return ext;
+}
+
+bool Control::write(std::string filePath){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    if (extension(filePath) == "edi") {
+        std::ofstream os(filePath.c_str());
+
+        if(!os.is_open()) return false;
+        Molecule::writeEDI(mol,os);
+        os.close();
+
+    } else if (extension(filePath) == "xyz" || extension(filePath) == "ani") {
+        std::ofstream os(filePath.c_str());
+
+        if(!os.is_open()) return false;
+        Molecule::writexyz(mol,os);
+        os.close();
+    }
+
+    broadcastChange();
+    return true;
+}
+bool Control::read(std::string filePath){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    if (extension(filePath) == "edi") {
+        std::ifstream is(filePath.c_str());
+        if(!is.is_open()) return false;
+
+        if(!Molecule::loadEDI(mol,is)) return false;
+        is.close();
+
+    } else if (extension(filePath) == "xyz" || extension(filePath) == "ani") {
+        std::ifstream is(filePath.c_str());
+        if(!is.is_open()) return false;
+
+        if(!Molecule::loadxyz(mol,is)) return false;
+
+        is.close();
+    }
+
+    broadcastChange();
+    return true;
+}
+
+bool Control::fileCreate(std::string filename){
+    std::lock_guard<std::mutex> lock(mutex);
+
+    sequence.createRowWithColumn();
+    sequence.currentColumn().data().fileInfo.setFile(filename.c_str());
+
+    broadcastChange();
+    return true;
+}
+bool Control::fileDuplicate(std::string filename){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+    sequence.createRowWithColumn() = mol;
+    sequence.currentColumn().data().fileInfo.setFile(filename.c_str());
+
+    broadcastChange();
+    return true;
+}
+bool Control::fileClose(){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    sequence.removeCurrentColumn();
+
+    broadcastChange();
+    return true;
+}
+//bool Control::fileSave(){}
+bool Control::fileSave(std::string filePath){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    std::string ext;
+
+    size_t i = filePath.rfind('.', filePath.length());
+    if (i != std::string::npos)  ext = filePath.substr(i+1, filePath.length() - i);
+
+    if (ext == "edi") {
+        std::ofstream os(filePath.c_str());
+
+        if(!os.is_open()) return false;
+
+        auto & column = sequence.currentColumn();
+        for(int r = 0; r < column.numRows(); r++)
+            Molecule::writeEDI(column.at(r),os);
+        os.close();
+
+    } else if (ext == "xyz" || ext == "ani") {
+        std::ofstream os(filePath.c_str());
+
+        if(!os.is_open()) return false;
+
+        auto & column = sequence.currentColumn();
+        for(int r = 0; r < column.numRows(); r++)
+            Molecule::writexyz(column.at(r),os);
+        os.close();
+    }
+
+    sequence.currentColumn().data().fileInfo.setFile(filePath.c_str());
+    sequence.currentColumn().data().isSaved = true;
+
+    broadcastChange();
+    return true;
+}
+bool Control::fileOpen(std::string filePath){
+    std::lock_guard<std::mutex> lock(mutex);
+    std::string ext;
+
+    size_t i = filePath.rfind('.', filePath.length());
+    if (i != std::string::npos)  ext = filePath.substr(i+1, filePath.length() - i);
+
+    if (ext == "edi") {
+        std::ifstream is(filePath.c_str());
+        if(!is.is_open()) return false;
+
+        if(Molecule::loadEDI(sequence.createRowWithColumn(),is)) {
+            sequence.currentColumn().data().fileInfo.setFile(filePath.c_str());
+            broadcastChange();
+            while (Molecule::loadEDI(sequence.createRow(),is)) { broadcastChange(); wait(); }
+            sequence.removeCurrentRow();
+        } else {
+            sequence.removeCurrentRow();
+            return false;
+        }
+        is.close();
+
+    } else if (ext == "xyz" || ext == "ani") {
+        std::ifstream is(filePath.c_str());
+        if(!is.is_open()) return false;
+
+        if(Molecule::loadxyz(sequence.createRowWithColumn(),is)) {
+            sequence.currentColumn().data().fileInfo.setFile(filePath.c_str());
+            broadcastChange();
+            int loadcount = 0;
+            while (Molecule::loadxyz(sequence.createRow(),is)) {         broadcastChange(); wait();  }
+
+            sequence.removeCurrentRow();
+        } else {
+            sequence.removeCurrentRow();
+            return false;
+        }
+        is.close();
+    }
+
+    if(sequence.isEmpty()) return false;
+    sequence.currentColumn().data().isSaved = true;
+
+    broadcastChange();
+    return true;
+
+}
+
+bool Control::getCenter(unsigned char  mask,double &x,double &y,double &z){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    Eigen::Vector3d v = mol.getCenter(mask);
+    x = v.x();
+    y = v.y();
+    z = v.z();
+    return true;
+}
+bool Control::getBoundingBox(unsigned char mask,double &mx,double &my,double &mz,double &Mx,double &My,double &Mz){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) return false;
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    Eigen::Vector3d m,M;
+    Eigen::Vector3d v = mol.getBoundingBox(mask,m,M);
+    mx = m.x();
+    my = m.y();
+    mz = m.z();
+    Mx = M.x();
+    My = M.y();
+    Mz = M.z();
+    return true;
+}
+bool Control::getCell(double &x1,double &y1,double &z1,double &x2,double &y2,double &z2,double &x3,double &y3,double &z3){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) errorMsg("Cell could not exist!");
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    x1 = mol.a1().x();
+    y1 = mol.a1().y();
+    z1 = mol.a1().z();
+
+    x2 = mol.a2().x();
+    y2 = mol.a2().y();
+    z2 = mol.a2().z();
+
+    x3 = mol.a3().x();
+    y3 = mol.a3().y();
+    z3 = mol.a3().z();
+    return true;
+}
+bool Control::getCoord(int id,double &x,double &y,double &z){
+    std::lock_guard<std::mutex> lock(mutex);
+    if(sequence.isEmpty()) errorMsg("Cell could not exist!");
+
+    MoleculeData & mol = sequence.currentFrame();
+
+    x = mol.positions()[id].x();
+    y = mol.positions()[id].y();
+    z = mol.positions()[id].z();
+
+    return true;
+}
+
+
+double Control::eval(std::string expr) {
+    double value;
+    std::istringstream is(expr);
+    if(is >> value) return value;
+    return variables[expr];
+}
+
+double Control::eval(double expr) {
+    return expr;
+}
+double& Control::var(std::string expr) {
+    return variables[expr];
+}
+
+bool Control::command(std::string cmd) {
+
+    std::string filename,str;
+    int mask,maskWrite,flip,maskRead,id,id1,id2,n1,n2,n3;
+    std::vector<int> list;
+    std::string x,y,z,angle,x1,y1,z1,x2,y2,z2,x3,y3,z3;
+
+    std::string var1,var2,var3,var4,var5,var6,var7,var8,var9;
+
+    if(match("file create %1",cmd,&filename)) {
+        if(!fileCreate(filename)) errorMsg("File could not be created!");
+    } else if(match("file close",cmd)) {
+        if(!fileClose()) errorMsg("File could not be closed!");
+    } else if(match("file duplicate %1",cmd,&filename)) {
+        if(!fileDuplicate(filename)) errorMsg("File could not be created with this frame!");
+
+    } else if(match("file save %1",cmd,&filename)) {
+        if(!fileSave(filename)) errorMsg("File could not be saved!");
+
+    } else if(match("frame create",cmd)) {
+        if(!create()) errorMsg("File could not be closed!");
+    } else if(match("frame duplicate",cmd)) {
+        if(!duplicate()) errorMsg("File could not be closed!");
+    } else if(match("frame remove",cmd)) {
+        if(!remove()) errorMsg("File could not be closed!");
+    } else if(match("frame next",cmd)) {
+        if(!next()) errorMsg("File could not be closed!");
+    } else if(match("frame previous",cmd)) {
+        if(!previous()) errorMsg("File could not be closed!");
+
+
+
+    } else if(match("erase %1",cmd,&mask)) {
+        if(!erase(mask)) errorMsg("Mask could not be erased!");
+    } else if(match("gather %1",cmd,&mask)) {
+        if(!gather(mask)) errorMsg("Mask could not be gathered!");
+    } else if(match("group %1 %2 list %3",cmd,&mask,&flip,&list)) {
+        for(int i = 0; i < list.size(); i++) list[i]--;
+        if(!group(mask,flip,list)) errorMsg("Group could not be changed!");
+    } else if(match("group %1 %2 %3",cmd,&mask,&flip,&maskRead)) {
+       if(!group(mask,flip,maskRead)) errorMsg("Group could not be changed!");
+
+    } else if(match("pick %1",cmd,&id)) {
+       if(!pick(id-1)) errorMsg("Pick could not be changed!");
+    } else if(match("pick",cmd)) {
+       if(!pick()) errorMsg("Pick could not be changed!");
+    } else if(match("distance %1 %2",cmd,&id1,&id2)) {
+       if(!distance(id1,id2)) errorMsg("Distance could not be changed!");
+    } else if(match("distance",cmd)) {
+       if(!distance()) errorMsg("Distance could not be changed!");
+    } else if(match("translate %1  %2 %3 %4",cmd,&mask,&x,&y,&z)) {
+       if(!translate(mask,eval(x),eval(y),eval(z))) errorMsg("Mask could not be translated!");
+    } else if(match("rotate %1  %2 %3 %4  %5  %6 %7 %8",cmd,&mask,&x,&y,&z,&angle,&x2,&y2,&z2)) {
+       if(!rotate(mask,eval(x),eval(y),eval(z),eval(angle),eval(x2),eval(y2),eval(z2))) errorMsg("Mask could not be rotated!");
+    } else if(match("autoalign %1 %2",cmd,&mask,&str)) {
+       if(!autoalign(mask,str)) errorMsg("Mask could not be autoaligned!");
+
+    } else if(match("repeatcell %1 %2 %3",cmd,&n1,&n2,&n3)) {
+       if(!repeatcell(n1,n2,n3)) errorMsg("Repeatcell could not be performed!");
+    } else if(match("copy %1  %2 %3",cmd,&mask,&maskWrite,&flip)) {
+       if(!copy(mask,maskWrite,flip)) errorMsg("Copy could not be performed!");
+    } else if(match("sort %1  %2 %3 %4",cmd,&mask,&x,&y,&z)) {
+       if(!sort(mask,eval(x),eval(y),eval(z))) errorMsg("Sort could not be performed!");
+    } else if(match("cell %1 %2 %3  %4 %5 %6  %7 %8 %9",cmd,&x1,&y1,&z1,&x2,&y2,&z2,&x3,&y3,&z3)) {
+       if(!cell(eval(x1),eval(y1),eval(z1),eval(x2),eval(y2),eval(z2),eval(x3),eval(y3),eval(z3))) errorMsg("Cell could not be changed!");
+    } else if(match("cell",cmd)) {
+       if(!cell()) errorMsg("Cell could not be changed!");
+
+    } else if(match("get cell %1 %2 %3  %4 %5 %6  %7 %8 %9",cmd,&var1,&var2,&var3,&var4,&var5,&var6,&var7,&var8,&var9)) {
+        if(!getCell(var(var1),var(var2),var(var3),var(var4),var(var5),var(var6),var(var7),var(var8),var(var9))) errorMsg("Cell could not be accessed!");
+    } else if(match("get boundingbox %1  %2 %3 %4  %5 %6 %7",cmd,&mask,&var1,&var2,&var3,&var4,&var5,&var6)) {
+        if(!getBoundingBox(mask,var(var1),var(var2),var(var3),var(var4),var(var5),var(var6))) errorMsg("Boundingbox could not be accessed!");
+    } else if(match("get center %1  %2 %3 %4",cmd,&mask,&var1,&var2,&var3)) {
+        if(!getCenter(mask,var(var1),var(var2),var(var3))) errorMsg("Center could not be accessed!");
+    } else if(match("get coord %1  %2 %3 %4",cmd,&id,&var1,&var2,&var3)) {
+        if(!getCoord(id,var(var1),var(var2),var(var3))) errorMsg("Cell could not be accessed!");
+
+    } else if(match("debug %1",cmd,&str)) {
+
+        qDebug() << eval(str);
+
+    } else errorMsg("Command unriceognized: "+cmd);
+}

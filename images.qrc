@@ -1,0 +1,61 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/pyramid.png</file>
+        <file>images/arrow-left.ico</file>
+        <file>images/arrow-left-3.ico</file>
+        <file>images/arrow-left-double.ico</file>
+        <file>images/arrow-left-double-3.ico</file>
+        <file>images/arrow-right.ico</file>
+        <file>images/arrow-right-3.ico</file>
+        <file>images/arrow-right-double.ico</file>
+        <file>images/arrow-right-double-3.ico</file>
+        <file>images/document-export.ico</file>
+        <file>images/document-save-all.ico</file>
+        <file>images/system-restart.ico</file>
+        <file>images/delete.png</file>
+        <file>images/edit_add.png</file>
+        <file>images/eraser.png</file>
+        <file>images/appbar.arrow.expand.png</file>
+        <file>images/appbar.axis.three.png</file>
+        <file>images/appbar.axis.x.letter.png</file>
+        <file>images/appbar.axis.y.letter.png</file>
+        <file>images/appbar.axis.z.letter.png</file>
+        <file>images/appbar.cell.down.png</file>
+        <file>images/appbar.cell.insert.above.png</file>
+        <file>images/appbar.cell.insert.below.png</file>
+        <file>images/appbar.cell.row.delete.png</file>
+        <file>images/appbar.cell.up.png</file>
+        <file>images/appbar.close.png</file>
+        <file>images/appbar.control.fastforward.png</file>
+        <file>images/appbar.control.fastforward.variant.png</file>
+        <file>images/appbar.control.play.png</file>
+        <file>images/appbar.control.resume.png</file>
+        <file>images/appbar.control.rewind.png</file>
+        <file>images/appbar.control.rewind.variant.png</file>
+        <file>images/appbar.control.stop.png</file>
+        <file>images/appbar.cursor.default.png</file>
+        <file>images/appbar.cursor.hand.png</file>
+        <file>images/appbar.cursor.move.png</file>
+        <file>images/appbar.cusor.pointer.png</file>
+        <file>images/appbar.door.enter.png</file>
+        <file>images/appbar.edit.add.png</file>
+        <file>images/appbar.folder.open.png</file>
+        <file>images/appbar.image.png</file>
+        <file>images/appbar.layer.delete.png</file>
+        <file>images/appbar.magnify.add.png</file>
+        <file>images/appbar.magnify.minus.png</file>
+        <file>images/appbar.magnify.png</file>
+        <file>images/appbar.save.png</file>
+        <file>images/appbar.add.multiple.png</file>
+        <file>images/appbar.add.png</file>
+        <file>images/appbar.delete.png</file>
+        <file>images/appbar.inbox.in.png</file>
+        <file>images/appbar.inbox.out.png</file>
+        <file>images/appbar.edit.minus.png</file>
+        <file>images/appbar.edit.png</file>
+        <file>images/appbar.navigate.next - Copy.png</file>
+        <file>images/appbar.navigate.previous - Copy.png</file>
+        <file>images/appbar.redo - Copy.png</file>
+        <file>images/appbar.undo - Copy.png</file>
+    </qresource>
+</RCC>

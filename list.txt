@@ -1,0 +1,36 @@
+“file create %1"  ,&filename         
+"file close"                         
+"file duplicate %1"  ,&filename      
+"file save %1"  ,&filename      	
+"frame create"            		
+"frame duplicate"      				
+"frame remove"        	
+"frame next"            
+"frame previous"        
+"erase %1"  ,&mask      
+"gather %1"  ,&mask     
+"group %1 %2 list %3"  ,&mask,&flip,&list       							
+"group %1 %2 %3"  ,&mask,&flip,&maskRead       								
+"pick %1"  ,&id     
+"pick"           
+"distance %1 %2"  ,&id1,&id2        
+"distance"           
+"translate %1  %2 %3 %4"  ,&mask,&x,&y,&z          
+"rotate %1  %2 %3 %4  %5  %6 %7 %8"  ,&mask,&x,&y,&z,&angle,&x2,&y2,&z2          
+"autoalign %1 %2"  ,&mask,&str          
+"repeatcell %1 %2 %3"  ,&n1,&n2,&n3         
+"copy %1  %2 %3"  ,&mask,&maskWrite,&flip      
+"sort %1  %2 %3 %4"  ,&mask,&x,&y,&z          
+"cell %1 %2 %3  %4 %5 %6  %7 %8 %9"  ,&x1,&y1,&z1,&x2,&y2,&z2,&x3,&y3,&z3          			
+"cell"          											
+"get cell %1 %2 %3  %4 %5 %6  %7 %8 %9"  ,&var1,&var2,&var3,&var4,&var5,&var6,&var7,&var8,&var9         
+"get boundingbox %1  %2 %3 %4  %5 %6 %7"  ,&mask,&var1,&var2,&var3,&var4,&var5,&var6        		
+"get center %1  %2 %3 %4"  ,&mask,&var1,&var2,&var3       						
+"get coord %1  %2 %3 %4"  ,&id,&var1,&var2,&var3       							
+"get pick %1  %2 %3 %4"  ,&id,&var1,&var2,&var3        							
+"read %1 %2 %3"  ,&mask,&flip,&filename           							
+"write %1 %2"  ,&mask,&filename         								
+"debug %1"  ,&str   											
+“do”         										   
+"undo"         											    
+"setting %1 %2"  ,&str,&str2   																							

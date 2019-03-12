@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>shaders/cylinders_fs.glsl</file>
+        <file>shaders/cylinders_vs.glsl</file>
+        <file>shaders/fshader.glsl</file>
+        <file>shaders/spheres_fs.glsl</file>
+        <file>shaders/spheres_vs.glsl</file>
+        <file>shaders/vshader.glsl</file>
+        <file>shaders/linestrip_fs.glsl</file>
+        <file>shaders/linestrip_vs.glsl</file>
+        <file>shaders/halospheres_fs.glsl</file>
+        <file>shaders/halospheres_vs.glsl</file>
+        <file>shaders/dashlinestrip_fs.glsl</file>
+        <file>shaders/dashlinestrip_vs.glsl</file>
+        <file>shaders/pickspheres_fs.glsl</file>
+        <file>shaders/pickspheres_vs.glsl</file>
+    </qresource>
+</RCC>

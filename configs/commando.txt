@@ -1,0 +1,32 @@
+[Avogadro2] writexyz temporary_file.xyz ; !"c:\Program Files (x86)\Avogadro2\bin\avogadro2.exe" temporary_file.xyz ; readxyz temporary_file.xyz
+[Jmol] writexyz temporary_file.xyz ; ! java -Xmx512m -jar "c:\Users\Agi\Dropbox\Install\Jmol-14.2.7_2014.10.13-binary\jmol-14.2.7_2014.10.13\Jmol.jar" temporary_file.xyz 
+[writexyz] writexyz temporary_file.xyz
+[readxyz] readxyz temporary_file.xyz 
+[loadxyz] loadxyz temporary_file.xyz 
+[autolink] autolink 1.3 4.0 0.3
+[duplicateframe] duplicateframe
+[duplicateframeasfile]  duplicateframeasfile
+[newframe]  newframe
+[newfile]  newfile
+[repeatcell] repeatcell 2 2 2
+[translatealltocenter] translatealltocenter
+[x+1] translateselected 1 0 0
+[y+1] translateselected 0 1 0
+[z+1] translateselected 0 0 1
+[x-1] translateselected -1 0 0
+[y-1] translateselected 0 -1 0
+[z-1] translateselected 0 0 -1
+[x+1/10] translateselected 0.1 0 0
+[y+1/10] translateselected 0 0.1 0
+[z+1/10] translateselected 0 0 0.1
+[x-1/10] translateselected -0.1 0 0
+[y-1/10] translateselected 0 -0.1 0
+[z-1/10] translateselected 0 0 -0.1
+[expand lattice] duplicateframe;repeatcell 2 1 1; duplicateframe ;  repeatcell 1 2 1 ;  duplicateframe ;  repeatcell 1 1 2 
+[groupselectedtobeginning] groupselectedtobeginning
+[autoalignselected] autoalignselected xyz
+[rotateselected] rotateselected 0 0 1  0.1  0 0 0 
+[sortselected]  sortselected 0.01 0.01 1
+[deleteselectedatoms] deleteselectedatoms
+[setunitcell] setunitcell 10 0 0  0 10 0  0 0 10
+[setunitcellguess]  setunitcellguess 5 5 5

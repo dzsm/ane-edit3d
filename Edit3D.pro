@@ -48,8 +48,6 @@ QMAKE_CXXFLAGS += -O3
 
 CONFIG += c++11
 INCLUDEPATH += /usr/include/eigen3
-#INCLUDEPATH += /home/Agi/Dropbox/Developing/eigen
-#INCLUDEPATH += C:\Users\manrique\Dropbox\Developing\all_trcode\libs\eigen
 INCLUDEPATH += .
 
 RESOURCES += \
